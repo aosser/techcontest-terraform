@@ -54,7 +54,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 ################################
 
 resource "aws_iam_role" "api_gateway_role" {
-  name = "$apigateway-role"
+  name = "apigateway-role"
   assume_role_policy = data.aws_iam_policy_document.api_gateway_assume_role.json
 }
 
