@@ -24,22 +24,6 @@ provider "aws" {
 
 
 ################################
-# tfstateファイルを格納するS3 Bucket
-################################
-
-resource "aws_s3_bucket" "tfstate_bucket" {
-  bucket = "terraform-state-087537145619-bucket"
-}
-
-resource "aws_s3_bucket_versioning" "versioning_tfstate_bucket" {
-  bucket = aws_s3_bucket.tfstate_bucket.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-
-################################
 # LambdaにアタッチするIAM Role
 ################################
 
