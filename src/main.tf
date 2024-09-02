@@ -158,3 +158,14 @@ resource "aws_api_gateway_rest_api_policy" "policy" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   policy = data.aws_iam_policy_document.api_gateway_policy.json
 }
+
+
+################################
+# SSM Parameter Store
+################################
+
+resource "aws_ssm_parameter" "api_endpoint" {
+  name  = "api_endpoint_invoke_url"
+  type  = "String"
+  value = aws_api_gateway_deployment.deployment.invoke_url
+}
