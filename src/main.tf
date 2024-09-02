@@ -50,6 +50,29 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 
 
 ################################
+# Lambda
+################################
+
+# apiディレクトリにLambdaのソースコードがある前提
+# apiディレクトリを api.zip という名前に固めて resource "aws_lambda_function" "api" から参照できるようにする
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_dir  = "./api"
+  output_path = "api.zip"
+}
+
+resource "aws_lambda_function" "api" {
+  depends_on       = [aws_iam_role.lambda_role]
+  filename         = data.archive_file.lambda_zip.output_path
+  function_name    = "api"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "index.lambda_handler"
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+}
+
+
+################################
 # API GatewayにアタッチするIAM Role
 ################################
 
