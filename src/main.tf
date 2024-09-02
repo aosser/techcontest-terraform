@@ -8,7 +8,7 @@ terraform {
   backend "s3" {
     bucket = "terraform-state-087537145619-bucket"
     key    = "api-gateway-test.tfstate"
-    region = "us-east-1"
+    region = "ap-northeast-1"
   }
 }
 
