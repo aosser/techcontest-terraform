@@ -10,4 +10,3 @@ exports.lambda_handler = async (event, context) => {
       return;
     });
   };
-  
