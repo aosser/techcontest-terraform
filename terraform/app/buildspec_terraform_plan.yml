@@ -2,10 +2,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - "cd terraform/app"
+      - "cd ${CODEBUILD_SRC_DIR}/terraform/app"
       - "terraform init"
   build:
     commands:
+      - "cd ${CODEBUILD_SRC_DIR}/terraform/app"
       - "terraform plan -out=./.tfplan"
 
 artifacts:
