@@ -6,7 +6,6 @@ phases:
       - "terraform init"
   build:
     commands:
-      - "cd terraform/app"
       - "terraform plan -out=./.tfplan"
 
 artifacts:
