@@ -1,0 +1,16 @@
+version: 0.2
+phases:
+  pre_build:
+    on-failure: ABORT
+    commands:
+      - "cd terraform/app"
+      - "terraform init"
+  build:
+    commands:
+      - "cd terraform/app"
+      - "terraform plan -out=./.tfplan"
+
+artifacts:
+  base-directory: ${CODEBUILD_SRC_DIR}
+  files:
+    - "**/*"

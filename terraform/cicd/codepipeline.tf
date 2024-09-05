@@ -28,10 +28,10 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "Build"
+    name = "Plan"
 
     action {
-      name             = "Build"
+      name             = "Terraform-Plan"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
@@ -40,7 +40,7 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
 
       configuration = {
-        ProjectName = "test"
+        ProjectName = "cicd_terraform_plan"
       }
     }
   }

@@ -57,3 +57,28 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   role   = aws_iam_role.codepipeline_role.id
   policy = data.aws_iam_policy_document.codepipeline_policy.json
 }
+
+
+
+
+########
+# codebuild
+########
+
+resource "aws_iam_role" "codebuildServiceRole" {
+  name               = "codebuildServiceRole"
+  assume_role_policy = data.aws_iam_policy_document.codebuild_assume_role.json
+}
+
+data "aws_iam_policy_document" "codebuild_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["codebuild.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
