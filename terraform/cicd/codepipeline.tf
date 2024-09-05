@@ -1,16 +1,30 @@
-resource "aws_codepipeline" "codepipeline" {
-  name     = "tf-test-pipeline"
+resource "aws_codepipeline" "terraform_pipeline" {
+  name     = "terraform_pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
-
   artifact_store {
-    location = aws_s3_bucket.codepipeline_bucket.bucket
+    location = aws_s3_bucket.codepipeline_artifacts.bucket
     type     = "S3"
-
+  }
+  execution_mode = "QUEUED"
+  pipeline_type = "V2"
+  trigger {
+    provider_type = "CodeStarSourceConnection"
+    git_configuration {
+      source_action_name = "Source"
+      # pull_request {}
+      push {
+        branches {
+          includes = [ "main" ]
+        }
+        file_paths {
+          includes = [ "terraform/app/**" ]
+        }
+      }
+    }
   }
 
   stage {
     name = "Source"
-
     action {
       name             = "Source"
       category         = "Source"
@@ -18,51 +32,48 @@ resource "aws_codepipeline" "codepipeline" {
       provider         = "CodeStarSourceConnection"
       version          = "1"
       output_artifacts = ["source_output"]
-
+      namespace        = "SourceVariables"
       configuration = {
-        ConnectionArn    = aws_codestarconnections_connection.example.arn
+        ConnectionArn    = aws_codestarconnections_connection.github.arn
         FullRepositoryId = "aosser/techcontest-terraform"
         BranchName       = "main"
+        DetectChanges    = "false"
       }
     }
   }
 
   stage {
     name = "Plan"
-
     action {
       name             = "Terraform-Plan"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["build_output"]
       version          = "1"
-
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["plan_output"]
+      namespace        = "PlanVariables"
       configuration = {
-        ProjectName = "cicd_terraform_plan"
+        ProjectName = aws_codebuild_project.cicd_terraform_plan.name
       }
     }
   }
 
   stage {
-    name = "Deploy"
-
+    name = "Apply"
     action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "CloudFormation"
-      input_artifacts = ["build_output"]
-      version         = "1"
-
+      name             = "Terraform-Apply"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["plan_output"]
+      output_artifacts = ["apply_output"]
+      namespace        = "ApplyVariables"
       configuration = {
-        ActionMode     = "REPLACE_ON_FAILURE"
-        Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
-        OutputFileName = "CreateStackOutput.json"
-        StackName      = "MyStack"
-        TemplatePath   = "build_output::sam-templated.yaml"
+        ProjectName = aws_codebuild_project.cicd_terraform_apply.name
       }
     }
   }
+
 }
