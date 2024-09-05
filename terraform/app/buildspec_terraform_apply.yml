@@ -1,15 +1,5 @@
 version: 0.2
 phases:
-  pre_build:
-    commands:
-      - "cd terraform/app"
-      - "terraform init"
-  build:
-    commands:
-      - "terraform plan -out=./.tfplan"
-
-version: 0.2
-phases:
   build:
     commands:
       - "cd ${CODEBUILD_SRC_DIR}/terraform/app"
